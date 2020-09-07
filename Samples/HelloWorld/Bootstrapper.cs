@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using Nancy;
+﻿using Nancy;
+using Nancy.TinyIoc;
 
 namespace HelloWorld
 {
     public class Bootstrapper : DefaultNancyBootstrapper
     {
-        protected override void ConfigureApplicationContainer(Nancy.TinyIoc.TinyIoCContainer container)
+        protected override void ConfigureApplicationContainer(TinyIoCContainer container)
         {
             base.ConfigureApplicationContainer(container);
-
             container.Register<OpenTokService>().AsSingleton();
         }
     }

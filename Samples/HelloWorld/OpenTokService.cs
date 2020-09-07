@@ -7,35 +7,30 @@ namespace HelloWorld
 {
     public class OpenTokService
     {
-        public Session Session { get; protected set; }
-        public OpenTok OpenTok { get; protected set; }
-
         public OpenTokService()
         {
-            int apiKey = 0;
-            string apiSecret = null;
+            int _APIKey = 0;
+            string _APISecret = null;
             try
             {
-                string apiKeyString = ConfigurationManager.AppSettings["API_KEY"];
-                apiSecret = ConfigurationManager.AppSettings["API_SECRET"];
-                apiKey = Convert.ToInt32(apiKeyString);
+                string _APIKeyString = ConfigurationManager.AppSettings["API_KEY"];
+                _APISecret = ConfigurationManager.AppSettings["API_SECRET"];
+                _APIKey = Convert.ToInt32(_APIKeyString);
             }
 
-            catch (Exception ex)
+            catch (Exception _Exception)
             {
-                if (!(ex is ConfigurationErrorsException || ex is FormatException || ex is OverflowException))
+                if (!(_Exception is ConfigurationErrorsException || _Exception is FormatException || _Exception is OverflowException))
                 {
-                    throw ex;
+                    throw _Exception;
                 }
             }
 
             finally
             {
-                if (apiKey == 0 || apiSecret == null)
+                if (_APIKey == 0 || _APISecret == null)
                 {
-                    Console.WriteLine(
-                        "The OpenTok API Key and API Secret were not set in the application configuration. " +
-                        "Set the values in App.config and try again. (apiKey = {0}, apiSecret = {1})", apiKey, apiSecret);
+                    Console.WriteLine("The OpenTok API Key and API Secret were not set in the application configuration. " + "Set the values in App.config and try again. (apiKey = {0}, apiSecret = {1})", _APIKey, _APISecret);
                     Console.ReadLine();
                     Environment.Exit(-1);
                 }
@@ -43,9 +38,11 @@ namespace HelloWorld
 
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
-            this.OpenTok = new OpenTok(apiKey, apiSecret);
-
-            this.Session = this.OpenTok.CreateSession();
+            OpenTok = new OpenTok(_APIKey, _APISecret);
+            Session = OpenTok.CreateSession();
         }
+
+        public Session Session { get; protected set; }
+        public OpenTok OpenTok { get; protected set; }
     }
 }

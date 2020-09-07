@@ -18,28 +18,11 @@ namespace OpenTokSDK
     */
     public class OpenTok
     {
-        
-        /** The OpenTok API key passed into the OpenTok() constructor. */
-        public int ApiKey { get; private set; }
-        /** The OpenTok API secret passed into the OpenTok() constructor. */
-        public string ApiSecret { get; private set; }
-        private string OpenTokServer { get; set; }
-        /** For internal use. */
-        public HttpClient Client { private get; set; }
-
         /**
          * Enables writing request/response details to console.
          * Don't use in a production environment.
          */
-        private bool _debug;
-        public bool Debug {
-          get { return _debug; }
-          set
-          {
-            _debug = value;
-            Client.debug = _debug;
-          }
-        }
+        private bool __Debug;
 
         /**
         * Creates an OpenTok object.
@@ -221,49 +204,51 @@ namespace OpenTokSDK
             return session.GenerateToken(role, expireTime, data, initialLayoutClassList);
         }
 
+        #region Archives
+
         /**
-         * Starts archiving an OpenTok session.
-         *
-         * <p>
-         * Clients must be actively connected to the OpenTok session for you to successfully start
-         * recording an archive.
-         * <p>
-         * You can only record one archive at a time for a given session. You can only record
-         * archives of sessions that uses the OpenTok Media Router (sessions with the media mode set
-         * to routed); you cannot archive sessions with the media mode set to relayed.
-         * <p>
-         * Note that you can have the session be automatically archived by setting the archiveMode
-         * parameter of the OpenTok.CreateSession() method to ArchiveMode.ALWAYS.
-         *
-         * @param sessionId The session ID of the OpenTok session to archive.
-         *
-         * @param name The name of the archive. You can use this name to identify the archive. It is
-         * a property of the Archive object, and it is a property of archive-related events in the
-         * OpenTok client libraries.
-         *
-         * @param hasVideo Whether the archive will record video (true) or not (false). The default
-         * value is true (video is recorded). If you set both <code>hasAudio</code> and
-         * <code>hasVideo</code> to false, the call to the <code>StartArchive()</code> method
-         * results in an error.
-         *
-         * @param hasAudio Whether the archive will record audio (true) or not (false). The default
-         * value is true (audio is recorded). If you set both <code>hasAudio</code> and
-         * <code>hasVideo</code> to false, the call to the <code>StartArchive()</code> method
-         * results in an error.
-         *
-         * @param outputMode Whether all streams in the archive are recorded to a single file
-         * (<code>OutputMode.COMPOSED</code>, the default) or to individual files
-         * (<code>OutputMode.INDIVIDUAL</code>).
-         *
-         * @param resolution The resolution for the archive. The default for <code>OutputMode.COMPOSED</code>
-         * is "640x480". You cannot specify the resolution for <code>OutputMode.INDIVIDUAL</code>.
-         * 
-         * @param layout The layout that you want to use for your archive. If <code>Type</code> is set to <code>LayoutType.custom</code> you must
-         * provide a StyleSheet string to Vonage how to layout your archive.
-         * 
-         * @return The Archive object. This object includes properties defining the archive,
-         * including the archive ID.
-         */
+* Starts archiving an OpenTok session.
+*
+* <p>
+* Clients must be actively connected to the OpenTok session for you to successfully start
+* recording an archive.
+* <p>
+* You can only record one archive at a time for a given session. You can only record
+* archives of sessions that uses the OpenTok Media Router (sessions with the media mode set
+* to routed); you cannot archive sessions with the media mode set to relayed.
+* <p>
+* Note that you can have the session be automatically archived by setting the archiveMode
+* parameter of the OpenTok.CreateSession() method to ArchiveMode.ALWAYS.
+*
+* @param sessionId The session ID of the OpenTok session to archive.
+*
+* @param name The name of the archive. You can use this name to identify the archive. It is
+* a property of the Archive object, and it is a property of archive-related events in the
+* OpenTok client libraries.
+*
+* @param hasVideo Whether the archive will record video (true) or not (false). The default
+* value is true (video is recorded). If you set both <code>hasAudio</code> and
+* <code>hasVideo</code> to false, the call to the <code>StartArchive()</code> method
+* results in an error.
+*
+* @param hasAudio Whether the archive will record audio (true) or not (false). The default
+* value is true (audio is recorded). If you set both <code>hasAudio</code> and
+* <code>hasVideo</code> to false, the call to the <code>StartArchive()</code> method
+* results in an error.
+*
+* @param outputMode Whether all streams in the archive are recorded to a single file
+* (<code>OutputMode.COMPOSED</code>, the default) or to individual files
+* (<code>OutputMode.INDIVIDUAL</code>).
+*
+* @param resolution The resolution for the archive. The default for <code>OutputMode.COMPOSED</code>
+* is "640x480". You cannot specify the resolution for <code>OutputMode.INDIVIDUAL</code>.
+* 
+* @param layout The layout that you want to use for your archive. If <code>Type</code> is set to <code>LayoutType.custom</code> you must
+* provide a StyleSheet string to Vonage how to layout your archive.
+* 
+* @return The Archive object. This object includes properties defining the archive,
+* including the archive ID.
+*/
         public Archive StartArchive(string sessionId, string name = "", bool hasVideo = true, bool hasAudio = true, OutputMode outputMode = OutputMode.COMPOSED, string resolution = null, ArchiveLayout layout = null)
         {
             if (String.IsNullOrEmpty(sessionId))
@@ -277,22 +262,36 @@ namespace OpenTokSDK
             if (!String.IsNullOrEmpty(resolution) && outputMode.Equals(OutputMode.INDIVIDUAL))
             {
                 throw new OpenTokArgumentException("Resolution can't be specified for Individual Archives");
-            } else if(!String.IsNullOrEmpty(resolution) && outputMode.Equals(OutputMode.COMPOSED))
+            }
+            else if (!String.IsNullOrEmpty(resolution) && outputMode.Equals(OutputMode.COMPOSED))
             {
                 data.Add("resolution", resolution);
             }
             if (layout != null)
             {
-                if (layout?.Type == LayoutType.custom && string.IsNullOrEmpty(layout?.StyleSheet) || 
-                    layout?.Type!=LayoutType.custom && !string.IsNullOrEmpty(layout?.StyleSheet))
+                if (layout?.Type == LayoutType.custom && string.IsNullOrEmpty(layout?.StyleSheet) ||
+                    layout?.Type != LayoutType.custom && !string.IsNullOrEmpty(layout?.StyleSheet))
                 {
                     throw new OpenTokArgumentException("Could not set layout, stylesheet must be set if and only if type is custom");
                 }
                 data.Add("layout", layout);
             }
-            
+
             string response = Client.Post(url, headers, data);
             return OpenTokUtils.GenerateArchive(response, ApiKey, ApiSecret, OpenTokServer);
+        }
+
+        /**
+ * Returns a List of Archive objects, representing archives that are both
+ * both completed and in-progress, for your API key. This list is limited to 1000 archives
+ * starting with the first archive recorded. For a specific range of archives, call
+ * listArchives(int offset, int count).
+ *
+ * @return A List of Archive objects.
+ */
+        public ArchiveList ListArchives()
+        {
+            return ListArchives(0, 0);
         }
 
         /**
@@ -311,19 +310,6 @@ namespace OpenTokSDK
 
             string response = Client.Post(url, headers, new Dictionary<string, object>());
             return JsonConvert.DeserializeObject<Archive>(response);
-        }
-
-        /**
-         * Returns a List of Archive objects, representing archives that are both
-         * both completed and in-progress, for your API key. This list is limited to 1000 archives
-         * starting with the first archive recorded. For a specific range of archives, call
-         * listArchives(int offset, int count).
-         *
-         * @return A List of Archive objects.
-         */
-        public ArchiveList ListArchives()
-        {
-            return ListArchives(0, 0);
         }
 
         /**
@@ -387,74 +373,9 @@ namespace OpenTokSDK
             Client.Delete(url, headers);
         }
 
-        /**
-         * Gets a Stream object for the given stream ID.
-         *
-         * @param sessionId The session ID of the OpenTok session.
-         * 
-         * @param streamId The stream ID.
-         * 
-         * @return The Stream object.
-        */
-        public Stream GetStream(string sessionId, string streamId)
-        {
-            if (String.IsNullOrEmpty(sessionId) || String.IsNullOrEmpty(streamId))
-            {
-                throw new OpenTokArgumentException("The sessionId or streamId cannot be null or empty");
-            }
-            string url = string.Format("v2/project/{0}/session/{1}/stream/{2}", this.ApiKey, sessionId, streamId);
-            var headers = new Dictionary<string, string> { { "Content-type", "application/json" } };
-            string response = Client.Get(url);
-            Stream stream = JsonConvert.DeserializeObject<Stream>(response);
-            Stream streamCopy = new Stream();
-            streamCopy.CopyStream(stream);
-            return streamCopy;
-        }
+        #endregion
 
-        /**
-         * Returns a List of Stream objects, representing streams that are in-progress,
-         * for the Session Id.
-         *
-         * @param sessionId The session ID corresponding to the session.
-         * 
-         * @return A List of Stream objects.
-        */
-        public StreamList ListStreams(string sessionId)
-        {
-            if (String.IsNullOrEmpty(sessionId))
-            {
-                throw new OpenTokArgumentException("The sessionId cannot be null or empty");
-            }
-            string url = string.Format("v2/project/{0}/session/{1}/stream", this.ApiKey, sessionId);
-            string response = Client.Get(url);
-            JObject streams = JObject.Parse(response);
-            JArray streamsArray = (JArray)streams["items"];
-            StreamList streamList = new StreamList(streamsArray.ToObject<List<Stream>>(), (int)streams["count"]);
-            return streamList;
-        }
-
-        /**
-          * Force disconnects a specific client connected to an OpenTok session.
-          *
-          * @param sessionId The session ID corresponding to the session.
-          * 
-          * @param connectionId The connectionId of the connection in a session..
-         */
-        public void ForceDisconnect(string sessionId, string connectionId)
-        {
-            if (String.IsNullOrEmpty(sessionId) || String.IsNullOrEmpty(connectionId))
-            {
-                throw new OpenTokArgumentException("The sessionId or connectionId cannot be null or empty");
-            }
-            
-            if (!OpenTokUtils.ValidateSession(sessionId))
-            {
-                throw new OpenTokArgumentException("Invalid session Id");
-            }
-            string url = string.Format("v2/project/{0}/session/{1}/connection/{2}", this.ApiKey, sessionId, connectionId);
-            var headers = new Dictionary<string, string>();
-            Client.Delete(url, headers);
-        }
+        #region Broadcast
 
         /**
         * Use this method to start a live streaming for an OpenTok session.
@@ -485,7 +406,7 @@ namespace OpenTokSDK
                 throw new OpenTokArgumentException("Session not valid");
             }
 
-            if(!String.IsNullOrEmpty(resolution) && resolution != "640x480" && resolution != "1280x720")
+            if (!String.IsNullOrEmpty(resolution) && resolution != "640x480" && resolution != "1280x720")
             {
                 throw new OpenTokArgumentException("Resolution value must be either 640x480 (SD) or 1280x720 (HD).");
             }
@@ -504,13 +425,14 @@ namespace OpenTokSDK
             var headers = new Dictionary<string, string> { { "Content-type", "application/json" } };
             var outputs = new Dictionary<string, object>();
 
-            if (hls) {
+            if (hls)
+            {
                 outputs.Add("hls", new Object());
             }
 
-            if(rtmpList != null)
+            if (rtmpList != null)
             {
-               outputs.Add("rtmp", rtmpList);
+                outputs.Add("rtmp", rtmpList);
             }
 
             var data = new Dictionary<string, object>() {
@@ -522,18 +444,23 @@ namespace OpenTokSDK
             if (!String.IsNullOrEmpty(resolution))
             {
                 data.Add("resolution", resolution);
-            } 
+            }
 
             if (layout != null)
             {
                 if ((layout.Type.Equals(BroadcastLayout.LayoutType.Custom) && String.IsNullOrEmpty(layout.Stylesheet)) ||
-                    (!layout.Type.Equals(BroadcastLayout.LayoutType.Custom) && !String.IsNullOrEmpty(layout.Stylesheet))) {
+                    (!layout.Type.Equals(BroadcastLayout.LayoutType.Custom) && !String.IsNullOrEmpty(layout.Stylesheet)))
+                {
                     throw new OpenTokArgumentException("Could not set the layout. Either an invalid JSON or an invalid layout options.");
-                } else {
+                }
+                else
+                {
                     if (layout.Type.Equals(BroadcastLayout.LayoutType.Custom))
                     {
                         data.Add("layout", layout);
-                    } else {
+                    }
+                    else
+                    {
                         data.Add("layout", new { type = OpenTokUtils.convertToCamelCase(layout.Type.ToString()) });
                     }
                 }
@@ -614,6 +541,81 @@ namespace OpenTokSDK
             Client.Put(url, headers, data);
         }
 
+        #endregion
+
+        #region Stream
+
+        /**
+         * Gets a Stream object for the given stream ID.
+         *
+         * @param sessionId The session ID of the OpenTok session.
+         * 
+         * @param streamId The stream ID.
+         * 
+         * @return The Stream object.
+        */
+        public Stream GetStream(string sessionId, string streamId)
+        {
+            if (String.IsNullOrEmpty(sessionId) || String.IsNullOrEmpty(streamId))
+            {
+                throw new OpenTokArgumentException("The sessionId or streamId cannot be null or empty");
+            }
+            string url = string.Format("v2/project/{0}/session/{1}/stream/{2}", this.ApiKey, sessionId, streamId);
+            var headers = new Dictionary<string, string> { { "Content-type", "application/json" } };
+            string response = Client.Get(url);
+            Stream stream = JsonConvert.DeserializeObject<Stream>(response);
+            Stream streamCopy = new Stream();
+            streamCopy.CopyStream(stream);
+            return streamCopy;
+        }
+
+        /**
+         * Returns a List of Stream objects, representing streams that are in-progress,
+         * for the Session Id.
+         *
+         * @param sessionId The session ID corresponding to the session.
+         * 
+         * @return A List of Stream objects.
+        */
+        public StreamList ListStreams(string sessionId)
+        {
+            if (String.IsNullOrEmpty(sessionId))
+            {
+                throw new OpenTokArgumentException("The sessionId cannot be null or empty");
+            }
+            string url = string.Format("v2/project/{0}/session/{1}/stream", this.ApiKey, sessionId);
+            string response = Client.Get(url);
+            JObject streams = JObject.Parse(response);
+            JArray streamsArray = (JArray)streams["items"];
+            StreamList streamList = new StreamList(streamsArray.ToObject<List<Stream>>(), (int)streams["count"]);
+            return streamList;
+        }
+
+        #endregion
+
+        /**
+          * Force disconnects a specific client connected to an OpenTok session.
+          *
+          * @param sessionId The session ID corresponding to the session.
+          * 
+          * @param connectionId The connectionId of the connection in a session..
+         */
+        public void ForceDisconnect(string sessionId, string connectionId)
+        {
+            if (String.IsNullOrEmpty(sessionId) || String.IsNullOrEmpty(connectionId))
+            {
+                throw new OpenTokArgumentException("The sessionId or connectionId cannot be null or empty");
+            }
+
+            if (!OpenTokUtils.ValidateSession(sessionId))
+            {
+                throw new OpenTokArgumentException("Invalid session Id");
+            }
+            string url = string.Format("v2/project/{0}/session/{1}/connection/{2}", this.ApiKey, sessionId, connectionId);
+            var headers = new Dictionary<string, string>();
+            Client.Delete(url, headers);
+        }
+
         /**
         * Sets the layout class list for streams in a session. Layout classes are used in
         * the layout for composed archives and live streaming broadcasts. For more information, see
@@ -640,8 +642,9 @@ namespace OpenTokSDK
             Dictionary<string, object> data = new Dictionary<string, object>();
             if (streams == null || streams.Count() == 0)
             {
-               throw new OpenTokArgumentException("The stream list must include at least one item.");
-            } else
+                throw new OpenTokArgumentException("The stream list must include at least one item.");
+            }
+            else
             {
                 foreach (StreamProperties stream in streams)
                 {
@@ -668,7 +671,7 @@ namespace OpenTokSDK
         * @param connectionId An optional parameter used to send the signal to a specific connection in a session. 
         *
         */
-        public void Signal(string sessionId, SignalProperties signalProperties, string connectionId=null)
+        public void Signal(string sessionId, SignalProperties signalProperties, string connectionId = null)
         {
             if (String.IsNullOrEmpty(sessionId))
             {
@@ -694,5 +697,26 @@ namespace OpenTokSDK
         {
             Client.RequestTimeout = timeout;
         }
+
+
+        /** The OpenTok API key passed into the OpenTok() constructor. */
+        public int ApiKey { get; private set; }
+
+        /** The OpenTok API secret passed into the OpenTok() constructor. */
+        public string ApiSecret { get; private set; }
+
+        public bool Debug
+        {
+            get { return __Debug; }
+            set
+            {
+                __Debug = value;
+                Client.debug = __Debug;
+            }
+        }
+        private string OpenTokServer { get; set; }
+
+        /** For internal use. */
+        public HttpClient Client { private get; set; }
     }
 }

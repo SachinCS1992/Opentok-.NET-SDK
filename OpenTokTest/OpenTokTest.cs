@@ -24,7 +24,7 @@ namespace OpenTokSDKTest
             var opentok = new OpenTok(apiKey, apiSecret);
             Assert.IsType(typeof(OpenTok), opentok);
         }
-        
+
         // TODO: all create session and archive tests should verify the HTTP request body
 
         [Fact]
@@ -38,7 +38,7 @@ namespace OpenTokSDKTest
 
             var mockClient = new Mock<HttpClient>();
             mockClient.Setup(httpClient => httpClient.Post(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>(), It.IsAny<Dictionary<string, object>>())).Returns(returnString);
-            
+
             HttpClient client = mockClient.Object;
 
             OpenTok opentok = new OpenTok(apiKey, apiSecret);
@@ -47,7 +47,7 @@ namespace OpenTokSDKTest
 
             Assert.NotNull(session);
             Assert.Equal(this.apiKey, session.ApiKey);
-            Assert.Equal(sessionId, session.Id);
+            Assert.Equal(sessionId, session.ID);
             Assert.Equal(session.MediaMode, MediaMode.RELAYED);
             Assert.Equal(session.Location, "");
 
@@ -74,7 +74,7 @@ namespace OpenTokSDKTest
 
             Assert.NotNull(session);
             Assert.Equal(this.apiKey, session.ApiKey);
-            Assert.Equal(sessionId, session.Id);
+            Assert.Equal(sessionId, session.ID);
             Assert.Equal(session.MediaMode, MediaMode.ROUTED);
             Assert.Equal(session.Location, "");
 
@@ -101,14 +101,14 @@ namespace OpenTokSDKTest
 
             Assert.NotNull(session);
             Assert.Equal(this.apiKey, session.ApiKey);
-            Assert.Equal(sessionId, session.Id);
+            Assert.Equal(sessionId, session.ID);
             Assert.Equal(session.MediaMode, MediaMode.RELAYED);
             Assert.Equal(session.Location, "0.0.0.0");
 
-            mockClient.Verify(httpClient => httpClient.Post(It.Is<string>(url => url.Equals(expectedUrl)), It.IsAny<Dictionary<string, string>>(), 
+            mockClient.Verify(httpClient => httpClient.Post(It.Is<string>(url => url.Equals(expectedUrl)), It.IsAny<Dictionary<string, string>>(),
                             It.IsAny<Dictionary<string, object>>()), Times.Once());
         }
-   
+
         [Fact]
         public void CreateRoutedSessionWithLocationTest()
         {
@@ -129,7 +129,7 @@ namespace OpenTokSDKTest
 
             Assert.NotNull(session);
             Assert.Equal(this.apiKey, session.ApiKey);
-            Assert.Equal(sessionId, session.Id);
+            Assert.Equal(sessionId, session.ID);
             Assert.Equal(session.MediaMode, MediaMode.ROUTED);
             Assert.Equal(session.Location, "0.0.0.0");
 
@@ -156,7 +156,7 @@ namespace OpenTokSDKTest
 
             Assert.NotNull(session);
             Assert.Equal(this.apiKey, session.ApiKey);
-            Assert.Equal(sessionId, session.Id);
+            Assert.Equal(sessionId, session.ID);
             Assert.Equal(session.MediaMode, MediaMode.ROUTED);
             Assert.Equal(session.ArchiveMode, ArchiveMode.ALWAYS);
 
@@ -205,8 +205,8 @@ namespace OpenTokSDKTest
         public void GenerateTokenTest()
         {
             OpenTok opentok = new OpenTok(apiKey, apiSecret);
-            
-            String sessionId = "1_MX4xMjM0NTZ-flNhdCBNYXIgMTUgMTQ6NDI6MjMgUERUIDIwMTR-MC40OTAxMzAyNX4";          
+
+            String sessionId = "1_MX4xMjM0NTZ-flNhdCBNYXIgMTUgMTQ6NDI6MjMgUERUIDIwMTR-MC40OTAxMzAyNX4";
             string token = opentok.GenerateToken(sessionId);
 
             Assert.NotNull(token);
@@ -225,7 +225,7 @@ namespace OpenTokSDKTest
             OpenTok opentok = new OpenTok(apiKey, apiSecret);
 
             String sessionId = "1_MX4xMjM0NTZ-flNhdCBNYXIgMTUgMTQ6NDI6MjMgUERUIDIwMTR-MC40OTAxMzAyNX4";
-            string token = opentok.GenerateToken(sessionId, role:Role.SUBSCRIBER);
+            string token = opentok.GenerateToken(sessionId, role: Role.SUBSCRIBER);
 
             Assert.NotNull(token);
             var data = CheckToken(token, apiKey);
@@ -236,8 +236,8 @@ namespace OpenTokSDKTest
             Assert.NotNull(data["nonce"]);
             Assert.Equal(data["role"], Role.SUBSCRIBER.ToString());
         }
-        
-        
+
+
         [Fact]
         public void GenerateTokenWithExpireTimeTest()
         {
@@ -255,7 +255,7 @@ namespace OpenTokSDKTest
             Assert.NotNull(data["create_time"]);
             Assert.NotNull(data["nonce"]);
             Assert.Equal(data["role"], Role.PUBLISHER.ToString());
-            Assert.Equal(data["expire_time"], ((long) expireTime).ToString());
+            Assert.Equal(data["expire_time"], ((long)expireTime).ToString());
         }
 
         [Fact]
@@ -263,9 +263,9 @@ namespace OpenTokSDKTest
         {
             OpenTok opentok = new OpenTok(apiKey, apiSecret);
             double expireTime = OpenTokUtils.GetCurrentUnixTimeStamp() + 10;
-            string connectionData =  "Somedatafortheconnection";
+            string connectionData = "Somedatafortheconnection";
             String sessionId = "1_MX4xMjM0NTZ-flNhdCBNYXIgMTUgMTQ6NDI6MjMgUERUIDIwMTR-MC40OTAxMzAyNX4";
-            string token = opentok.GenerateToken(sessionId, data:connectionData);
+            string token = opentok.GenerateToken(sessionId, data: connectionData);
 
             Assert.NotNull(token);
             var data = CheckToken(token, apiKey);
@@ -310,7 +310,7 @@ namespace OpenTokSDKTest
                 // Generate token with empty sessionId
                 token = opentok.GenerateToken(null);
             }
-            catch(OpenTokArgumentException e)
+            catch (OpenTokArgumentException e)
             {
                 exceptions.Add(e);
             }
@@ -336,7 +336,7 @@ namespace OpenTokSDKTest
             }
 
             Assert.Equal(exceptions.Count, 3);
-            foreach(Exception exception in exceptions)
+            foreach (Exception exception in exceptions)
             {
                 Assert.True(exception is OpenTokArgumentException);
             }
@@ -362,7 +362,7 @@ namespace OpenTokSDKTest
                                     "gnature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n" + " }";
             var mockClient = new Mock<HttpClient>();
             mockClient.Setup(httpClient => httpClient.Get(It.IsAny<string>())).Returns(returnString);
-            
+
             OpenTok opentok = new OpenTok(apiKey, apiSecret);
             opentok.Client = mockClient.Object;
             Archive archive = opentok.GetArchive(archiveId);
@@ -379,7 +379,7 @@ namespace OpenTokSDKTest
             Assert.Equal("http://tokbox.com.archive2.s3.amazonaws.com/123456%2F" + archiveId + "%2Farchive.mp4?Expires=13951" +
                     "94362&AWSAccessKeyId=AKIAI6LQCPIXYVWCQV6Q&Signature=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", archive.Url);
 
-            mockClient.Verify(httpClient => httpClient.Get(It.Is<string>(url => url.Equals("v2/project/"+this.apiKey+"/archive/"+archiveId))), Times.Once());
+            mockClient.Verify(httpClient => httpClient.Get(It.Is<string>(url => url.Equals("v2/project/" + this.apiKey + "/archive/" + archiveId))), Times.Once());
         }
 
         [Fact]
@@ -437,7 +437,7 @@ namespace OpenTokSDKTest
             mockClient.Verify(httpClient => httpClient.Get(It.Is<string>(url => url.Equals("v2/project/" + this.apiKey + "/archive/" + archiveId))), Times.Once());
         }
 
-        
+
         [Fact]
         public void ListArchivesTest()
         {
@@ -533,7 +533,7 @@ namespace OpenTokSDKTest
             Assert.NotNull(archives);
             Assert.Equal(6, archives.Count);
 
-            mockClient.Verify(httpClient => httpClient.Get(It.Is<string>(url => url.Equals("v2/project/"+apiKey + "/archive?offset=0"))), Times.Once());
+            mockClient.Verify(httpClient => httpClient.Get(It.Is<string>(url => url.Equals("v2/project/" + apiKey + "/archive?offset=0"))), Times.Once());
         }
 
         [Fact]
@@ -554,7 +554,7 @@ namespace OpenTokSDKTest
                                 " }";
             var mockClient = new Mock<HttpClient>();
             mockClient.Setup(httpClient => httpClient.Post(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>(), It.IsAny<Dictionary<string, object>>())).Returns(returnString);
-            
+
             OpenTok opentok = new OpenTok(apiKey, apiSecret);
             opentok.Client = mockClient.Object;
             Archive archive = opentok.StartArchive(sessionId, null);
@@ -563,7 +563,7 @@ namespace OpenTokSDKTest
             Assert.Equal(sessionId, archive.SessionId);
             Assert.NotNull(archive.Id);
 
-            mockClient.Verify(httpClient => httpClient.Post(It.Is<string>(url => url.Equals("v2/project/"+ apiKey +"/archive")), It.IsAny<Dictionary<string, string>>(), It.IsAny<Dictionary<string, object>>()), Times.Once());
+            mockClient.Verify(httpClient => httpClient.Post(It.Is<string>(url => url.Equals("v2/project/" + apiKey + "/archive")), It.IsAny<Dictionary<string, string>>(), It.IsAny<Dictionary<string, object>>()), Times.Once());
         }
 
         [Fact]
@@ -578,7 +578,7 @@ namespace OpenTokSDKTest
                                 " \"outputMode\" : \"individual\",\n" +
                                 " \"partnerId\" : 123456,\n" +
                                 " \"reason\" : \"\",\n" +
-                                " \"sessionId\" : \""+ sessionId +"\",\n" +
+                                " \"sessionId\" : \"" + sessionId + "\",\n" +
                                 " \"size\" : 0,\n" +
                                 " \"status\" : \"started\",\n" +
                                 " \"url\" : null\n" +
@@ -640,7 +640,7 @@ namespace OpenTokSDKTest
             headers.Add("Content-type", "application/json");
             var clientType = typeof(HttpClient);
             var layoutString = (string)clientType.GetMethod("GetRequestPostData", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).Invoke(httpClient, new object[] { data, headers });
-            Assert.Equal(expected, layoutString);            
+            Assert.Equal(expected, layoutString);
         }
 
         [Fact]
@@ -655,7 +655,7 @@ namespace OpenTokSDKTest
             headers.Add("Content-type", "application/json");
             var clientType = typeof(HttpClient);
             var layoutString = (string)clientType.GetMethod("GetRequestPostData", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).Invoke(httpClient, new object[] { data, headers });
-            Assert.Equal(expectedString, layoutString);            
+            Assert.Equal(expectedString, layoutString);
         }
 
         [Fact]
@@ -722,7 +722,7 @@ namespace OpenTokSDKTest
                 Archive archive = opentok.StartArchive(sessionId, outputMode: OutputMode.COMPOSED, resolution: resolution, layout: layout);
                 Assert.True(false, "StartArchive should have thrown an exception");
             }
-            catch(OpenTokArgumentException ex)
+            catch (OpenTokArgumentException ex)
             {
                 Assert.Equal("Could not set layout, stylesheet must be set if and only if type is custom", ex.Message);
             }
@@ -879,8 +879,8 @@ namespace OpenTokSDKTest
                                 " \"url\" : null\n" +
                                 " }";
             var mockClient = new Mock<HttpClient>();
-            mockClient.Setup(httpClient => httpClient.Post(It.IsAny<string>(), 
-                It.IsAny<Dictionary<string, string>>(), 
+            mockClient.Setup(httpClient => httpClient.Post(It.IsAny<string>(),
+                It.IsAny<Dictionary<string, string>>(),
                 It.IsAny<Dictionary<string, object>>())).Returns(returnString);
 
             OpenTok opentok = new OpenTok(apiKey, apiSecret);
@@ -892,8 +892,8 @@ namespace OpenTokSDKTest
             Assert.Equal(archiveId, archive.Id.ToString());
 
             mockClient.Verify(httpClient => httpClient.Post(It.Is<string>(
-                url => url.Equals("v2/project/" + apiKey + "/archive/" + archiveId +"/stop")), 
-                It.IsAny<Dictionary<string, string>>(), 
+                url => url.Equals("v2/project/" + apiKey + "/archive/" + archiveId + "/stop")),
+                It.IsAny<Dictionary<string, string>>(),
                 It.IsAny<Dictionary<string, object>>()), Times.Once());
         }
 
@@ -901,7 +901,7 @@ namespace OpenTokSDKTest
         public void DeleteArchiveTest()
         {
             string archiveId = "30b3ebf1-ba36-4f5b-8def-6f70d9986fe9";
-            
+
             var mockClient = new Mock<HttpClient>();
             mockClient.Setup(httpClient => httpClient.Delete(It.IsAny<string>(),
                 It.IsAny<Dictionary<string, string>>()));
@@ -942,7 +942,7 @@ namespace OpenTokSDKTest
             Assert.Equal("screen", stream.VideoType);
             Assert.Equal(LayoutClassList, stream.LayoutClassList);
 
-            mockClient.Verify(httpClient => httpClient.Get(It.Is<string>(url => url.Equals("v2/project/" + this.apiKey + "/session/" + sessionId +"/stream/" + streamId))), Times.Once());
+            mockClient.Verify(httpClient => httpClient.Get(It.Is<string>(url => url.Equals("v2/project/" + this.apiKey + "/session/" + sessionId + "/stream/" + streamId))), Times.Once());
         }
 
         [Fact]
@@ -971,7 +971,7 @@ namespace OpenTokSDKTest
             Assert.Equal("screen", stream.VideoType);
             Assert.Equal(LayoutClassList, stream.LayoutClassList);
 
-            mockClient.Verify(httpClient => httpClient.Get(It.Is<string>(url => url.Equals("v2/project/" + this.apiKey + "/session/" + sessionId +"/stream/" + streamId))), Times.Once());
+            mockClient.Verify(httpClient => httpClient.Get(It.Is<string>(url => url.Equals("v2/project/" + this.apiKey + "/session/" + sessionId + "/stream/" + streamId))), Times.Once());
         }
 
         [Fact]
@@ -1078,7 +1078,8 @@ namespace OpenTokSDKTest
             try
             {
                 opentok.ForceDisconnect(sessionId, connectionId);
-            } catch (OpenTokArgumentException e)
+            }
+            catch (OpenTokArgumentException e)
             {
                 Assert.True(true);
             }
@@ -1167,14 +1168,14 @@ namespace OpenTokSDKTest
         }
 
 
-        private Dictionary<string,string> CheckToken(string token, int apiKey)
+        private Dictionary<string, string> CheckToken(string token, int apiKey)
         {
             string baseToken = OpenTokUtils.Decode64(token.Substring(4));
             char[] sep = { '&' };
             string[] tokenFields = baseToken.Split(sep);
             var tokenData = new Dictionary<string, string>();
 
-            for (int i = 0; i < tokenFields.Length; i ++)
+            for (int i = 0; i < tokenFields.Length; i++)
             {
                 tokenData.Add(tokenFields[i].Split('=')[0], tokenFields[i].Split('=')[1]);
             }
@@ -1404,7 +1405,7 @@ namespace OpenTokSDKTest
             Assert.NotNull(broadcast);
             Assert.Equal(broadcastId, broadcast.Id.ToString());
             Assert.NotNull(broadcast.Id);
-            
+
 
             mockClient.Verify(httpClient => httpClient.Post(It.Is<string>(url => url.Equals("v2/project/" + apiKey + "/broadcast/" + broadcastId + "/stop")), It.IsAny<Dictionary<string, string>>(), It.IsAny<Dictionary<string, object>>()), Times.Once());
         }
@@ -1435,7 +1436,7 @@ namespace OpenTokSDKTest
             Assert.NotNull(broadcast);
             Assert.Equal(broadcastId, broadcast.Id.ToString());
             Assert.NotNull(broadcast.Id);
-            
+
             mockClient.Verify(httpClient => httpClient.Get(It.Is<string>(url => url.Equals("v2/project/" + this.apiKey + "/broadcast/" + broadcastId))), Times.Once());
         }
 
@@ -1455,7 +1456,7 @@ namespace OpenTokSDKTest
             OpenTok opentok = new OpenTok(apiKey, apiSecret);
             opentok.Client = mockClient.Object;
             opentok.SetStreamClassLists(sessionId, streamPropertiesList);
-            
+
             mockClient.Verify(httpClient => httpClient.Put(It.Is<string>(url => url.Equals("v2/project/" + apiKey + "/session/" + sessionId + "/stream")), It.IsAny<Dictionary<string, string>>(), It.IsAny<Dictionary<string, object>>()), Times.Once());
         }
     }

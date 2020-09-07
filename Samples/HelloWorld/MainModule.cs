@@ -8,19 +8,17 @@ namespace HelloWorld
     public class MainModule : NancyModule
     {
 
-        public MainModule(OpenTokService opentokService)
+        public MainModule(OpenTokService openTokService)
         {
 
             Get["/"] = _ =>
-                {
-                    dynamic locals = new ExpandoObject();
-
-                    locals.ApiKey = opentokService.OpenTok.ApiKey.ToString();
-                    locals.SessionId = opentokService.Session.Id;
-                    locals.Token = opentokService.Session.GenerateToken();
-
-                    return View["index", locals];
-                };
+            {
+                dynamic _Locals = new ExpandoObject();
+                _Locals.ApiKey = openTokService.OpenTok.ApiKey.ToString();
+                _Locals.SessionId = openTokService.Session.ID;
+                _Locals.Token = openTokService.Session.GenerateToken();
+                return View["index", _Locals];
+            };
         }
     }
 }
